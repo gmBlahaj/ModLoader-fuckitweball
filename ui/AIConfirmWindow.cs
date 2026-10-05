@@ -24,6 +24,12 @@ internal class AIConfirmWindow : AbstractWindow<AIConfirmWindow>
         layout.spacing = 10;
         layout.padding = new RectOffset(10, 10, 10, 10);
 
+        ScrollWindow scrollWindow = GetComponent<ScrollWindow>();
+        if (scrollWindow != null && scrollWindow.titleText != null)
+        {
+            scrollWindow.titleText.text = LM.Get("AIConfirmWindow Title");
+        }
+
         messageText = new GameObject("Message", typeof(Text)).GetComponent<Text>();
         messageText.transform.SetParent(ContentTransform);
         messageText.transform.localScale = Vector3.one;

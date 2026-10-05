@@ -7,6 +7,7 @@
   "NeoModLoader Update Complete": "NeoModLoader 更新至{0},\n 重啟遊戲以應用更新。",
   "ModUpload Title": "上傳模組",
   "Information Title": "提示",
+  "AIConfirmWindow Title": "AI 內容免責聲明",
   "ModLinkRequest": "關閉該視窗後將會請求提升權限以安裝BepInEx模組",
   "ModUploadingProgress Title": "上傳進度",
   "ModUploadFinish": "上傳完成",
