@@ -48,5 +48,5 @@ public static class CoreConstants
     /// <summary>
     /// Set to false to disable all AI disclosure badges on thumbnails and UI
     /// </summary>
-    public static bool EnableBadges = true;
+    public static bool EnableBadges = false;
 }
