@@ -17,11 +17,15 @@ internal class ModUploadWindow : AbstractWindow<ModUploadWindow>
     private Text mod_name_text;
     private Text mod_version_text;
     private IMod selected_mod;
+    private Text ai_disclosure_text;
+    private string selected_ai_attribution = "not_ai";
 
     public static void ShowWindow(IMod mod)
     {
         Instance.selected_mod = mod;
         ModDeclare mod_decl = mod.GetDeclaration();
+        Instance.selected_ai_attribution = mod_decl.AIAttribution ?? "not_ai";
+        Instance.updateAIDisclosureText();
         if (string.IsNullOrEmpty(mod_decl.IconPath))
         {
             Instance.mod_icon_image.sprite = InternalResourcesGetter.GetIcon();
@@ -193,6 +197,28 @@ internal class ModUploadWindow : AbstractWindow<ModUploadWindow>
         input_changelog.GetComponent<RectTransform>().sizeDelta =
             input_changelog_inputfield_rect.sizeDelta + new Vector2(2, 2);
 
+        GameObject ai_button = new GameObject("AIDisclosureButton", typeof(Image), typeof(Button));
+        ai_button.transform.SetParent(ContentTransform);
+        ai_button.transform.localScale = Vector3.one;
+        ai_button.GetComponent<RectTransform>().sizeDelta = new Vector2(190, 25);
+        Image ai_button_bg = ai_button.GetComponent<Image>();
+        ai_button_bg.sprite = SpriteTextureLoader.getSprite("ui/special/button2");
+        ai_button_bg.type = Image.Type.Sliced;
+
+        GameObject ai_button_text_obj = new GameObject("Text", typeof(Text));
+        ai_button_text_obj.transform.SetParent(ai_button.transform);
+        ai_button_text_obj.transform.localScale = Vector3.one;
+        ai_button_text_obj.GetComponent<RectTransform>().sizeDelta = new Vector2(190, 25);
+        ai_disclosure_text = ai_button_text_obj.GetComponent<Text>();
+        OT.InitializeCommonText(ai_disclosure_text);
+        ai_disclosure_text.alignment = TextAnchor.MiddleCenter;
+        ai_disclosure_text.resizeTextForBestFit = true;
+        ai_disclosure_text.resizeTextMinSize = 6;
+        ai_disclosure_text.resizeTextMaxSize = 11;
+        updateAIDisclosureText();
+
+        ai_button.GetComponent<Button>().onClick.AddListener(cycleAIDisclosure);
+
         GameObject upload_button = new GameObject("UploadButton", typeof(Image), typeof(Button));
         upload_button.transform.SetParent(ContentTransform);
         upload_button.transform.localPosition = new(130, -260);
@@ -228,7 +254,55 @@ internal class ModUploadWindow : AbstractWindow<ModUploadWindow>
         LocalizedTextManager.addTextField(upload_button_text_localized);
     }
 
+    private void cycleAIDisclosure()
+    {
+        selected_ai_attribution = selected_ai_attribution switch
+        {
+            "not_ai" => "ai_assisted",
+            "ai_assisted" => "ai_made",
+            _ => "not_ai"
+        };
+        if (selected_mod != null)
+        {
+            selected_mod.GetDeclaration().AIAttribution = selected_ai_attribution;
+        }
+        updateAIDisclosureText();
+    }
+
+    private void updateAIDisclosureText()
+    {
+        if (ai_disclosure_text == null) return;
+        string display = selected_ai_attribution switch
+        {
+            "ai_made" => "AI-Made",
+            "ai_assisted" => "AI-Assisted",
+            _ => "Human Authored"
+        };
+        ai_disclosure_text.text = "AI Disclosure: " + display;
+    }
+
     private void uploadSelectedMod()
+    {
+        if (selected_mod != null)
+        {
+            selected_mod.GetDeclaration().AIAttribution = selected_ai_attribution;
+        }
+
+        if (selected_ai_attribution is "ai_made" or "ai_assisted")
+        {
+            string warning = $"Warning: Steam Workshop policy requires accurate AI disclosure.\n\n" +
+                             $"This mod will be published with '{selected_mod?.GetDeclaration().GetAIAttributionDisplay()}' tag.\n\n" +
+                             $"Misrepresenting AI content may lead to mod removal by Workshop moderators.\n\n" +
+                             $"Do you wish to continue?";
+            AIConfirmWindow.ShowWindow(warning, executeUpload);
+        }
+        else
+        {
+            executeUpload();
+        }
+    }
+
+    private void executeUpload()
     {
         string fileId = mod_fileid_text.text;
         if (fileId.Any(c => !char.IsDigit(c)))
