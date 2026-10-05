@@ -41,11 +41,11 @@ public class ModInfoPanel : APrefab<ModInfoPanel>
         mod_author.GetComponent<RectTransform>().sizeDelta = new Vector2(280, 34);
         mod_author.GetComponent<RectTransform>().SetPivot(PivotPresets.MiddleLeft);
         var mod_author_text = mod_author.GetComponent<Text>();
-        mod_author_text.text = pPanel.ModDeclaration.GetDisplayAuthor();
+        mod_author_text.text = pPanel.ModDeclaration.GetDisplayAuthor() + "  |  " + pPanel.ModDeclaration.GetAIAttributionDisplay();
         mod_author_text.alignment = TextAnchor.UpperLeft;
         mod_author_text.font = LocalizedTextManager.current_font;
         mod_author_text.fontSize = 12;
-        mod_name_text.supportRichText = true;
+        mod_author_text.supportRichText = true;
 
 
         var mod_desc = new GameObject("ModDesc", typeof(Text));

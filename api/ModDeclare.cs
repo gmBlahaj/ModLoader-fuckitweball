@@ -118,6 +118,7 @@ public class ModDeclare
         ModType = modDeclare.ModType;
         UsePublicizedAssembly = modDeclare.UsePublicizedAssembly;
         RepoUrl = modDeclare.RepoUrl;
+        AIAttribution = modDeclare.AIAttribution ?? "not_ai";
 
         Dependencies ??= Array.Empty<string>();
         OptionalDependencies ??= Array.Empty<string>();
@@ -292,6 +293,20 @@ public class ModDeclare
         var multilang_mod_desc_key = $"{Description}_{LocalizedTextManager.instance.language}";
         if (LocalizedTextManager.stringExists(multilang_mod_desc_key)) display_desc = LM.Get(multilang_mod_desc_key);
         return display_desc;
+    }
+
+    [JsonProperty("ai_attribution")]
+    public string AIAttribution { get; internal set; } = "not_ai";
+
+    public string GetAIAttributionDisplay()
+    {
+        return AIAttribution?.ToLower() switch
+        {
+            "ai_made" => "AI-Made",
+            "ai_assisted" => "AI-Assisted",
+            "not_ai" => "Human Authored",
+            _ => "Unspecified"
+        };
     }
 }
 
