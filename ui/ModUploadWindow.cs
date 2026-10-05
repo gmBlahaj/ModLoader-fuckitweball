@@ -288,18 +288,11 @@ internal class ModUploadWindow : AbstractWindow<ModUploadWindow>
             selected_mod.GetDeclaration().AIAttribution = selected_ai_attribution;
         }
 
-        if (selected_ai_attribution is "ai_made" or "ai_assisted")
-        {
-            string warning = $"Warning: Steam Workshop policy requires accurate AI disclosure.\n\n" +
-                             $"This mod will be published with '{selected_mod?.GetDeclaration().GetAIAttributionDisplay()}' tag.\n\n" +
-                             $"Misrepresenting AI content may lead to mod removal by Workshop moderators.\n\n" +
-                             $"Do you wish to continue?";
-            AIConfirmWindow.ShowWindow(warning, executeUpload);
-        }
-        else
-        {
-            executeUpload();
-        }
+        string warning = $"Warning: Steam Workshop policy requires accurate AI disclosure.\n\n" +
+                         $"This mod will be published with '{selected_mod?.GetDeclaration().GetAIAttributionDisplay()}' tag.\n\n" +
+                         $"Misrepresenting AI content may lead to mod removal by Workshop moderators.\n\n" +
+                         $"Do you wish to continue?";
+        AIConfirmWindow.ShowWindow(warning, executeUpload);
     }
 
     private void executeUpload()
