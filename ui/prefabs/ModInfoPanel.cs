@@ -1,4 +1,5 @@
 using NeoModLoader.api;
+using NeoModLoader.constants;
 using NeoModLoader.General.UI.Prefabs;
 using UnityEngine;
 using UnityEngine.UI;
@@ -41,7 +42,9 @@ public class ModInfoPanel : APrefab<ModInfoPanel>
         mod_author.GetComponent<RectTransform>().sizeDelta = new Vector2(280, 34);
         mod_author.GetComponent<RectTransform>().SetPivot(PivotPresets.MiddleLeft);
         var mod_author_text = mod_author.GetComponent<Text>();
-        mod_author_text.text = pPanel.ModDeclaration.GetDisplayAuthor() + "  |  " + pPanel.ModDeclaration.GetAIAttributionDisplay();
+        mod_author_text.text = CoreConstants.EnableBadges
+            ? pPanel.ModDeclaration.GetDisplayAuthor() + "  |  " + pPanel.ModDeclaration.GetAIAttributionDisplay()
+            : pPanel.ModDeclaration.GetDisplayAuthor();
         mod_author_text.alignment = TextAnchor.UpperLeft;
         mod_author_text.font = LocalizedTextManager.current_font;
         mod_author_text.fontSize = 12;

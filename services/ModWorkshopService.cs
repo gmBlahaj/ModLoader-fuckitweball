@@ -172,6 +172,11 @@ internal static class ModWorkshopService
 
     private static string ApplyAIBadgeToThumbnail(string originalPreviewPath, string attribution, string corner, string workshopPath)
     {
+        if (!CoreConstants.EnableBadges)
+        {
+            return originalPreviewPath;
+        }
+
         if (string.IsNullOrEmpty(originalPreviewPath) || !File.Exists(originalPreviewPath))
         {
             return originalPreviewPath;

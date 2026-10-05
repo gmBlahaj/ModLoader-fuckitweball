@@ -1,4 +1,5 @@
 using NeoModLoader.api;
+using NeoModLoader.constants;
 using NeoModLoader.General;
 using NeoModLoader.services;
 using NeoModLoader.utils;
@@ -244,6 +245,7 @@ internal class ModUploadWindow : AbstractWindow<ModUploadWindow>
         updateAICornerText();
 
         corner_button.GetComponent<Button>().onClick.AddListener(cycleAICorner);
+        corner_button.SetActive(CoreConstants.EnableBadges);
 
         GameObject upload_button = new GameObject("UploadButton", typeof(Image), typeof(Button));
         upload_button.transform.SetParent(ContentTransform);

@@ -44,4 +44,9 @@ public static class CoreConstants
     ///     Id of default localization
     /// </summary>
     internal const string DefaultLocaleID = "en";
+
+    /// <summary>
+    /// Set to false to disable all AI disclosure badges on thumbnails and UI
+    /// </summary>
+    public static bool EnableBadges = true;
 }
