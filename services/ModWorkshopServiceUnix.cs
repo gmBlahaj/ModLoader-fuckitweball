@@ -72,12 +72,16 @@ internal class ModWorkshopServiceUnix : IPlatformSpecificModWorkshopService
     }
 
     public Promise UploadMod(string name, string description, string previewImagePath, string workshopPath,
-        string changelog, bool verified)
+        string changelog, bool verified, string aiTag = null)
     {
         // Create Upload Files Descriptor
         Editor editor = Editor.NewCommunityFile.WithTag(verified ? "Mod" : "Unverified Mod")
             .WithTitle(name).WithDescription(description).WithPreviewFile(previewImagePath)
             .WithContent(workshopPath).WithChangeLog(changelog);
+        if (!string.IsNullOrEmpty(aiTag))
+        {
+            editor = editor.WithTag(aiTag);
+        }
 
         Promise promise = new();
         ModUploadingProgressWindow.UploadProgress uploadProgress = ModUploadingProgressWindow.ShowWindow();

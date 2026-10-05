@@ -19,13 +19,17 @@ internal class ModUploadWindow : AbstractWindow<ModUploadWindow>
     private IMod selected_mod;
     private Text ai_disclosure_text;
     private string selected_ai_attribution = "not_ai";
+    private Text ai_corner_text;
+    private string selected_ai_corner = "bottom_right";
 
     public static void ShowWindow(IMod mod)
     {
         Instance.selected_mod = mod;
         ModDeclare mod_decl = mod.GetDeclaration();
         Instance.selected_ai_attribution = mod_decl.AIAttribution ?? "not_ai";
+        Instance.selected_ai_corner = mod_decl.AIBadgeCorner ?? "bottom_right";
         Instance.updateAIDisclosureText();
+        Instance.updateAICornerText();
         if (string.IsNullOrEmpty(mod_decl.IconPath))
         {
             Instance.mod_icon_image.sprite = InternalResourcesGetter.GetIcon();
@@ -219,6 +223,28 @@ internal class ModUploadWindow : AbstractWindow<ModUploadWindow>
 
         ai_button.GetComponent<Button>().onClick.AddListener(cycleAIDisclosure);
 
+        GameObject corner_button = new GameObject("AICornerButton", typeof(Image), typeof(Button));
+        corner_button.transform.SetParent(ContentTransform);
+        corner_button.transform.localScale = Vector3.one;
+        corner_button.GetComponent<RectTransform>().sizeDelta = new Vector2(190, 25);
+        Image corner_button_bg = corner_button.GetComponent<Image>();
+        corner_button_bg.sprite = SpriteTextureLoader.getSprite("ui/special/button2");
+        corner_button_bg.type = Image.Type.Sliced;
+
+        GameObject corner_button_text_obj = new GameObject("Text", typeof(Text));
+        corner_button_text_obj.transform.SetParent(corner_button.transform);
+        corner_button_text_obj.transform.localScale = Vector3.one;
+        corner_button_text_obj.GetComponent<RectTransform>().sizeDelta = new Vector2(190, 25);
+        ai_corner_text = corner_button_text_obj.GetComponent<Text>();
+        OT.InitializeCommonText(ai_corner_text);
+        ai_corner_text.alignment = TextAnchor.MiddleCenter;
+        ai_corner_text.resizeTextForBestFit = true;
+        ai_corner_text.resizeTextMinSize = 6;
+        ai_corner_text.resizeTextMaxSize = 11;
+        updateAICornerText();
+
+        corner_button.GetComponent<Button>().onClick.AddListener(cycleAICorner);
+
         GameObject upload_button = new GameObject("UploadButton", typeof(Image), typeof(Button));
         upload_button.transform.SetParent(ContentTransform);
         upload_button.transform.localPosition = new(130, -260);
@@ -281,11 +307,41 @@ internal class ModUploadWindow : AbstractWindow<ModUploadWindow>
         ai_disclosure_text.text = "AI Disclosure: " + display;
     }
 
+    private void cycleAICorner()
+    {
+        selected_ai_corner = selected_ai_corner switch
+        {
+            "bottom_right" => "top_right",
+            "top_right" => "top_left",
+            "top_left" => "bottom_left",
+            _ => "bottom_right"
+        };
+        if (selected_mod != null)
+        {
+            selected_mod.GetDeclaration().AIBadgeCorner = selected_ai_corner;
+        }
+        updateAICornerText();
+    }
+
+    private void updateAICornerText()
+    {
+        if (ai_corner_text == null) return;
+        string display = selected_ai_corner switch
+        {
+            "top_right" => "Top Right",
+            "top_left" => "Top Left",
+            "bottom_left" => "Bottom Left",
+            _ => "Bottom Right"
+        };
+        ai_corner_text.text = "Badge Corner: " + display;
+    }
+
     private void uploadSelectedMod()
     {
         if (selected_mod != null)
         {
             selected_mod.GetDeclaration().AIAttribution = selected_ai_attribution;
+            selected_mod.GetDeclaration().AIBadgeCorner = selected_ai_corner;
         }
 
         string warning = $"Warning: Steam Workshop policy requires accurate AI disclosure.\n\n" +

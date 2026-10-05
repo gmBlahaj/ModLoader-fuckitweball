@@ -119,6 +119,7 @@ public class ModDeclare
         UsePublicizedAssembly = modDeclare.UsePublicizedAssembly;
         RepoUrl = modDeclare.RepoUrl;
         AIAttribution = modDeclare.AIAttribution ?? "not_ai";
+        AIBadgeCorner = modDeclare.AIBadgeCorner ?? "bottom_right";
 
         Dependencies ??= Array.Empty<string>();
         OptionalDependencies ??= Array.Empty<string>();
@@ -297,6 +298,9 @@ public class ModDeclare
 
     [JsonProperty("ai_attribution")]
     public string AIAttribution { get; internal set; } = "not_ai";
+
+    [JsonProperty("ai_badge_corner")]
+    public string AIBadgeCorner { get; internal set; } = "bottom_right";
 
     public string GetAIAttributionDisplay()
     {

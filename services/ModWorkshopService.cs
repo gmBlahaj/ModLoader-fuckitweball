@@ -100,12 +100,12 @@ internal static class ModWorkshopService
             previewImagePath = Path.Combine(workshopPath, mod_decl.IconPath);
         }
 
-        previewImagePath = ApplyAIBadgeToThumbnail(previewImagePath, mod_decl.AIAttribution, workshopPath);
+        previewImagePath = ApplyAIBadgeToThumbnail(previewImagePath, mod_decl.AIAttribution, mod_decl.AIBadgeCorner, workshopPath);
 
         // This works for BepInEx mods
         File.WriteAllText(Path.Combine(workshopPath, "mod.json"), JsonConvert.SerializeObject(mod_decl, Formatting.Indented));
 
-        return workshopServiceBackend.UploadMod(name, description, previewImagePath, workshopPath, changelog, verified);
+        return workshopServiceBackend.UploadMod(name, description, previewImagePath, workshopPath, changelog, verified, mod_decl.GetAIAttributionDisplay());
     }
 
     public static Promise TryEditMod(ulong fileID, IMod mod, string changelog)
@@ -163,14 +163,14 @@ internal static class ModWorkshopService
             previewImagePath = Path.Combine(workshopPath, mod_decl.IconPath);
         }
 
-        previewImagePath = ApplyAIBadgeToThumbnail(previewImagePath, mod_decl.AIAttribution, workshopPath);
+        previewImagePath = ApplyAIBadgeToThumbnail(previewImagePath, mod_decl.AIAttribution, mod_decl.AIBadgeCorner, workshopPath);
 
         File.WriteAllText(Path.Combine(workshopPath, "mod.json"), JsonConvert.SerializeObject(mod_decl, Formatting.Indented));
 
         return workshopServiceBackend.EditMod(fileID, previewImagePath, workshopPath, changelog);
     }
 
-    private static string ApplyAIBadgeToThumbnail(string originalPreviewPath, string attribution, string workshopPath)
+    private static string ApplyAIBadgeToThumbnail(string originalPreviewPath, string attribution, string corner, string workshopPath)
     {
         if (string.IsNullOrEmpty(originalPreviewPath) || !File.Exists(originalPreviewPath))
         {
@@ -232,8 +232,29 @@ internal static class ModWorkshopService
 
             Texture2D scaledBadge = scaleTexture(badgeTex, badgeWidth, badgeHeight);
 
-            int startX = Mathf.Max(0, resultTex.width - scaledBadge.width - 5);
+            int startX = 5;
             int startY = 5;
+
+            switch (corner?.ToLower())
+            {
+                case "top_left":
+                    startX = 5;
+                    startY = Mathf.Max(0, resultTex.height - scaledBadge.height - 5);
+                    break;
+                case "top_right":
+                    startX = Mathf.Max(0, resultTex.width - scaledBadge.width - 5);
+                    startY = Mathf.Max(0, resultTex.height - scaledBadge.height - 5);
+                    break;
+                case "bottom_left":
+                    startX = 5;
+                    startY = 5;
+                    break;
+                case "bottom_right":
+                default:
+                    startX = Mathf.Max(0, resultTex.width - scaledBadge.width - 5);
+                    startY = 5;
+                    break;
+            }
 
             for (int x = 0; x < scaledBadge.width; x++)
             {

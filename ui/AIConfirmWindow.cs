@@ -88,7 +88,7 @@ internal class AIConfirmWindow : AbstractWindow<AIConfirmWindow>
 
         continueButtonObj.GetComponent<Button>().onClick.AddListener(() =>
         {
-            GetComponent<ScrollWindow>().clickHide();
+            ScrollWindow.moveAllToLeftAndRemove(false);
             onConfirmAction?.Invoke();
         });
     }
