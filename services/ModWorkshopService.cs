@@ -124,7 +124,7 @@ internal static class ModWorkshopService
         // This works for BepInEx mods
         File.WriteAllText(Path.Combine(workshopPath, "mod.json"), JsonConvert.SerializeObject(mod_decl, Formatting.Indented));
 
-        return workshopServiceBackend.UploadMod(name, description, previewImagePath, workshopPath, changelog, verified, mod_decl.GetAIAttributionDisplay());
+        return workshopServiceBackend.UploadMod(name, description, previewImagePath, workshopPath, changelog, verified, mod_decl.GetAIAttributionDisplay(), mod_decl.Tags);
     }
 
     public static Promise TryEditMod(ulong fileID, IMod mod, string changelog)
@@ -186,7 +186,7 @@ internal static class ModWorkshopService
 
         File.WriteAllText(Path.Combine(workshopPath, "mod.json"), JsonConvert.SerializeObject(mod_decl, Formatting.Indented));
 
-        return workshopServiceBackend.EditMod(fileID, previewImagePath, workshopPath, changelog);
+        return workshopServiceBackend.EditMod(fileID, previewImagePath, workshopPath, changelog, mod_decl.GetAIAttributionDisplay(), mod_decl.Tags);
     }
 
     private static string ApplyAIBadgeToThumbnail(string originalPreviewPath, string attribution, string corner, string style, string workshopPath)

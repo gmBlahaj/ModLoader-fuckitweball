@@ -49,4 +49,21 @@ public static class CoreConstants
     /// Set to false to disable all AI disclosure badges on thumbnails and UI
     /// </summary>
     public static bool EnableBadges = true;
+
+    /// <summary>
+    /// Standard category tags for Steam Workshop mods
+    /// </summary>
+    public static readonly string[] ModCategories =
+    {
+        "Gameplay",
+        "Traits",
+        "Civilizations",
+        "Items",
+        "Creatures",
+        "Buildings",
+        "Visuals",
+        "UI & QoL",
+        "Worldgen",
+        "Library / API"
+    };
 }

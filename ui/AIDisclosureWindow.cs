@@ -278,7 +278,7 @@ internal class AIDisclosureWindow : AbstractWindow<AIDisclosureWindow>
         txt_obj.GetComponent<RectTransform>().sizeDelta = new Vector2(190, 20);
         Text text = txt_obj.GetComponent<Text>();
         OT.InitializeCommonText(text);
-        text.alignment = TextAnchor.MiddleLeft;
+        text.alignment = TextAnchor.MiddleCenter;
         text.resizeTextForBestFit = true;
         text.resizeTextMinSize = 6;
         text.resizeTextMaxSize = 10;
@@ -300,23 +300,19 @@ internal class AIDisclosureWindow : AbstractWindow<AIDisclosureWindow>
             decl.AICheckArt = check_art;
             decl.AICheckTranslation = check_translation;
             decl.AICheckAudio = check_audio;
+            decl.Save();
+        }
 
-            try
-            {
-                string jsonPath = Path.Combine(decl.FolderPath, "mod.json");
-                if (File.Exists(jsonPath))
-                {
-                    File.WriteAllText(jsonPath, JsonConvert.SerializeObject(decl, Formatting.Indented));
-                }
-            }
-            catch (Exception e)
-            {
-                LogService.LogWarning($"Failed to save mod.json: {e.Message}");
-            }
+        string tagsSummary = "";
+        var activeTags = selected_mod?.GetDeclaration().Tags;
+        if (activeTags != null && activeTags.Count > 0)
+        {
+            tagsSummary = $"\nTags: {string.Join(", ", activeTags)}\n";
         }
 
         string warning = $"Warning: Steam Workshop policy requires accurate AI disclosure.\n\n" +
-                         $"This mod will be published with '{selected_mod?.GetDeclaration().GetAIAttributionDisplay()}' tag.\n\n" +
+                         $"This mod will be published with '{selected_mod?.GetDeclaration().GetAIAttributionDisplay()}' tag." +
+                         $"{tagsSummary}\n" +
                          $"Misrepresenting AI content may lead to mod removal by Workshop moderators.\n\n" +
                          $"Do you wish to continue?";
 
@@ -498,12 +494,13 @@ internal class AIDisclosureWindow : AbstractWindow<AIDisclosureWindow>
     {
         if (text != null)
         {
-            text.text = (active ? "  [X] " : "  [  ] ") + label;
-            text.color = active ? Color.white : new Color(0.65f, 0.65f, 0.65f, 1f);
+            text.text = active ? $"<color=#A0FFA0>✓</color> {label}" : $"<color=#888888>{label}</color>";
         }
         if (bg != null)
         {
-            bg.sprite = SpriteTextureLoader.getSprite(active ? "ui/special/button2" : "ui/special/darkInputFieldEmpty");
+            bg.sprite = SpriteTextureLoader.getSprite("ui/special/darkInputFieldEmpty");
+            bg.type = Image.Type.Sliced;
+            bg.color = active ? new Color(0.2f, 0.65f, 0.25f, 0.85f) : new Color(0.18f, 0.18f, 0.18f, 0.7f);
         }
     }
 

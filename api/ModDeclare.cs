@@ -2,6 +2,7 @@ using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
 using NeoModLoader.General;
+using NeoModLoader.services;
 using NeoModLoader.utils;
 using Newtonsoft.Json;
 using UnityEngine;
@@ -125,6 +126,7 @@ public class ModDeclare
         AICheckArt = modDeclare.AICheckArt;
         AICheckTranslation = modDeclare.AICheckTranslation;
         AICheckAudio = modDeclare.AICheckAudio;
+        Tags = modDeclare.Tags ?? new List<string>();
 
         Dependencies ??= Array.Empty<string>();
         OptionalDependencies ??= Array.Empty<string>();
@@ -341,6 +343,48 @@ public class ModDeclare
             "not_ai" => "Human Authored",
             _ => "Unspecified"
         };
+    }
+
+    private List<string> _tags = new();
+
+    [JsonProperty("tags")]
+    public List<string> Tags
+    {
+        get => _tags ??= new List<string>();
+        internal set => _tags = value ?? new List<string>();
+    }
+
+    public bool HasTag(string tag)
+    {
+        return Tags.Any(t => string.Equals(t, tag, StringComparison.OrdinalIgnoreCase));
+    }
+
+    public void ToggleTag(string tag)
+    {
+        if (HasTag(tag))
+        {
+            Tags.RemoveAll(t => string.Equals(t, tag, StringComparison.OrdinalIgnoreCase));
+        }
+        else
+        {
+            Tags.Add(tag);
+        }
+    }
+
+    public void Save()
+    {
+        try
+        {
+            string jsonPath = Path.Combine(FolderPath, "mod.json");
+            if (File.Exists(jsonPath))
+            {
+                File.WriteAllText(jsonPath, JsonConvert.SerializeObject(this, Formatting.Indented));
+            }
+        }
+        catch (Exception e)
+        {
+            LogService.LogWarning($"Failed to save mod.json: {e.Message}");
+        }
     }
 }
 

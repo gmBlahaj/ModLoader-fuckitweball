@@ -72,7 +72,7 @@ internal class ModWorkshopServiceWindows : IPlatformSpecificModWorkshopService
     }
 
     public Promise UploadMod(string name, string description, string previewImagePath, string workshopPath,
-        string changelog, bool verified, string aiTag = null)
+        string changelog, bool verified, string aiTag = null, List<string> extraTags = null)
     {
         // Create Upload Files Descriptor
         Editor editor = Editor.NewCommunityFile.WithTag(verified ? "Mod" : "Unverified Mod")
@@ -81,6 +81,16 @@ internal class ModWorkshopServiceWindows : IPlatformSpecificModWorkshopService
         if (!string.IsNullOrEmpty(aiTag))
         {
             editor = editor.WithTag(aiTag);
+        }
+        if (extraTags != null)
+        {
+            foreach (string tag in extraTags)
+            {
+                if (!string.IsNullOrEmpty(tag))
+                {
+                    editor = editor.WithTag(tag);
+                }
+            }
         }
 
         Promise promise = new();
@@ -118,13 +128,30 @@ internal class ModWorkshopServiceWindows : IPlatformSpecificModWorkshopService
         return promise;
     }
 
-    public Promise EditMod(ulong fileID, string previewImagePath, string workshopPath, string changelog)
+    public Promise EditMod(ulong fileID, string previewImagePath, string workshopPath, string changelog,
+        string aiTag = null, List<string> extraTags = null)
     {
         Promise promise = new();
         // Create Upload Files Descriptor
         Editor editor = new Editor(fileID)
             .WithPreviewFile(previewImagePath)
-            .WithContent(workshopPath).WithChangeLog(changelog);
+            .WithContent(workshopPath).WithChangeLog(changelog)
+            .WithTag("Mod");
+
+        if (!string.IsNullOrEmpty(aiTag))
+        {
+            editor = editor.WithTag(aiTag);
+        }
+        if (extraTags != null)
+        {
+            foreach (string tag in extraTags)
+            {
+                if (!string.IsNullOrEmpty(tag))
+                {
+                    editor = editor.WithTag(tag);
+                }
+            }
+        }
 
         editor.SubmitAsync(ModUploadingProgressWindow.ShowWindow()).ContinueWith(
             delegate(Task<PublishResult> taskResult)
