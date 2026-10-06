@@ -110,7 +110,6 @@ internal class ModUploadWindow : AbstractWindow<ModUploadWindow>
         input_fileid.GetComponent<RectTransform>().sizeDelta =
             input_fileid_inputfield_rect.sizeDelta + new Vector2(2, 2);
 
-
         GameObject mod_info = new GameObject("ModInfo", typeof(Image));
         mod_info.transform.SetParent(ContentTransform);
         mod_info.transform.localPosition = new(130, -78, 0);
