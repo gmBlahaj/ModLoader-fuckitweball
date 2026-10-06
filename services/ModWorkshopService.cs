@@ -1,3 +1,4 @@
+using System.Linq;
 using System.Reflection;
 using NeoModLoader.api;
 using NeoModLoader.api.attributes;
@@ -41,11 +42,29 @@ internal static class ModWorkshopService
     {
         ModDeclare mod_decl = mod.GetDeclaration();
         string name = mod_decl.Name;
-        string aiDisclosureText = $"\n[AI Disclosure: {mod_decl.GetAIAttributionDisplay()}]";
+        string aiDisclaimer;
+        if (mod_decl.AIAttribution == "ai_made" || mod_decl.AIAttribution == "ai_assisted")
+        {
+            var items = mod_decl.GetAIChecklistItems();
+            string itemsFormatted = items.Count > 0
+                ? string.Join("\n", items.Select(x => $"[b]•[/b] {x}"))
+                : "[b]•[/b] General Content";
+
+            aiDisclaimer = $"[hr][/hr]" +
+                           $"[b]AI Content Disclosure ({mod_decl.GetAIAttributionDisplay()}):[/b]\n" +
+                           $"This mod utilizes generative AI for:\n" +
+                           $"{itemsFormatted}\n" +
+                           $"(in compliance with Steam Workshop guidelines)\n" +
+                           $"[hr][/hr]";
+        }
+        else
+        {
+            aiDisclaimer = "[hr][/hr][b]Authorship:[/b] Handcrafted / Human Authored (No generative AI content)\n[hr][/hr]";
+        }
         string description = $"{name} Uploaded by NeoModLoader\n" +
-                             $"{name} 由NeoModLoader上传\n" +
-                             $"{aiDisclosureText}\n\n" +
+                             $"{name} 由NeoModLoader上传\n\n" +
                              $"{mod_decl.Description}\n\n" +
+                             $"{aiDisclaimer}\n\n" +
                              $"ModLoader: {CoreConstants.RepoURL}\n\n" +
                              $"模组加载器: {CoreConstants.RepoURL}";
         string workshopPath = Path.Combine(SaveManager.generateMainPath("workshop_upload_mod") + mod_decl.UID);
@@ -100,7 +119,7 @@ internal static class ModWorkshopService
             previewImagePath = Path.Combine(workshopPath, mod_decl.IconPath);
         }
 
-        previewImagePath = ApplyAIBadgeToThumbnail(previewImagePath, mod_decl.AIAttribution, mod_decl.AIBadgeCorner, workshopPath);
+        previewImagePath = ApplyAIBadgeToThumbnail(previewImagePath, mod_decl.AIAttribution, mod_decl.AIBadgeCorner, mod_decl.AIBadgeStyle, workshopPath);
 
         // This works for BepInEx mods
         File.WriteAllText(Path.Combine(workshopPath, "mod.json"), JsonConvert.SerializeObject(mod_decl, Formatting.Indented));
@@ -163,14 +182,14 @@ internal static class ModWorkshopService
             previewImagePath = Path.Combine(workshopPath, mod_decl.IconPath);
         }
 
-        previewImagePath = ApplyAIBadgeToThumbnail(previewImagePath, mod_decl.AIAttribution, mod_decl.AIBadgeCorner, workshopPath);
+        previewImagePath = ApplyAIBadgeToThumbnail(previewImagePath, mod_decl.AIAttribution, mod_decl.AIBadgeCorner, mod_decl.AIBadgeStyle, workshopPath);
 
         File.WriteAllText(Path.Combine(workshopPath, "mod.json"), JsonConvert.SerializeObject(mod_decl, Formatting.Indented));
 
         return workshopServiceBackend.EditMod(fileID, previewImagePath, workshopPath, changelog);
     }
 
-    private static string ApplyAIBadgeToThumbnail(string originalPreviewPath, string attribution, string corner, string workshopPath)
+    private static string ApplyAIBadgeToThumbnail(string originalPreviewPath, string attribution, string corner, string style, string workshopPath)
     {
         if (!CoreConstants.EnableBadges)
         {
@@ -182,13 +201,28 @@ internal static class ModWorkshopService
             return originalPreviewPath;
         }
 
-        string resourceName = attribution switch
+        bool isIconOnly = string.Equals(style, "icon_only", StringComparison.OrdinalIgnoreCase);
+        bool isWatermark = string.Equals(style, "watermark", StringComparison.OrdinalIgnoreCase);
+
+        string resourceName;
+        if (isIconOnly)
         {
-            "ai_made" => "NeoModLoader.resources.ai_badge_made.png",
-            "ai_assisted" => "NeoModLoader.resources.ai_badge_assisted.png",
-            "not_ai" => "NeoModLoader.resources.ai_badge_not_ai.png",
-            _ => "NeoModLoader.resources.ai_badge_not_ai.png"
-        };
+            resourceName = attribution switch
+            {
+                "ai_made" => "NeoModLoader.resources.i_made.png",
+                "ai_assisted" => "NeoModLoader.resources.i_ast.png",
+                _ => "NeoModLoader.resources.i_na.png"
+            };
+        }
+        else
+        {
+            resourceName = attribution switch
+            {
+                "ai_made" => "NeoModLoader.resources.b_made.png",
+                "ai_assisted" => "NeoModLoader.resources.b_ast.png",
+                _ => "NeoModLoader.resources.b_na.png"
+            };
+        }
 
         try
         {
@@ -232,7 +266,9 @@ internal static class ModWorkshopService
             RenderTexture.active = previousRT;
             RenderTexture.ReleaseTemporary(rt);
 
-            int badgeWidth = Mathf.Clamp(resultTex.width / 3, 60, 240);
+            int badgeWidth = isIconOnly
+                ? Mathf.Clamp(resultTex.width / 6, 28, 64)
+                : Mathf.Clamp(resultTex.width / 3, 60, 240);
             int badgeHeight = Mathf.RoundToInt((float)badgeWidth / badgeTex.width * badgeTex.height);
 
             Texture2D scaledBadge = scaleTexture(badgeTex, badgeWidth, badgeHeight);
@@ -273,7 +309,8 @@ internal static class ModWorkshopService
                     if (badgeColor.a > 0.01f)
                     {
                         Color baseColor = resultTex.GetPixel(targetX, targetY);
-                        Color blendedColor = Color.Lerp(baseColor, badgeColor, badgeColor.a);
+                        float effectiveAlpha = isWatermark ? (badgeColor.a * 0.35f) : badgeColor.a;
+                        Color blendedColor = Color.Lerp(baseColor, badgeColor, effectiveAlpha);
                         resultTex.SetPixel(targetX, targetY, blendedColor);
                     }
                 }

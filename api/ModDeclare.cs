@@ -120,6 +120,11 @@ public class ModDeclare
         RepoUrl = modDeclare.RepoUrl;
         AIAttribution = modDeclare.AIAttribution ?? "not_ai";
         AIBadgeCorner = modDeclare.AIBadgeCorner ?? "bottom_right";
+        AIBadgeStyle = modDeclare.AIBadgeStyle ?? "standard";
+        AICheckCode = modDeclare.AICheckCode;
+        AICheckArt = modDeclare.AICheckArt;
+        AICheckTranslation = modDeclare.AICheckTranslation;
+        AICheckAudio = modDeclare.AICheckAudio;
 
         Dependencies ??= Array.Empty<string>();
         OptionalDependencies ??= Array.Empty<string>();
@@ -301,6 +306,31 @@ public class ModDeclare
 
     [JsonProperty("ai_badge_corner")]
     public string AIBadgeCorner { get; internal set; } = "bottom_right";
+
+    [JsonProperty("ai_badge_style")]
+    public string AIBadgeStyle { get; internal set; } = "standard";
+
+    [JsonProperty("ai_check_code")]
+    public bool AICheckCode { get; internal set; }
+
+    [JsonProperty("ai_check_art")]
+    public bool AICheckArt { get; internal set; }
+
+    [JsonProperty("ai_check_translation")]
+    public bool AICheckTranslation { get; internal set; }
+
+    [JsonProperty("ai_check_audio")]
+    public bool AICheckAudio { get; internal set; }
+
+    public List<string> GetAIChecklistItems()
+    {
+        List<string> items = new List<string>();
+        if (AICheckCode) items.Add("Code / Logic");
+        if (AICheckArt) items.Add("Textures / Sprites");
+        if (AICheckTranslation) items.Add("Translations / Text");
+        if (AICheckAudio) items.Add("Audio / Music");
+        return items;
+    }
 
     public string GetAIAttributionDisplay()
     {

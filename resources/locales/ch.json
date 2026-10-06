@@ -8,6 +8,7 @@
   "ModUpload Title": "上傳模組",
   "Information Title": "提示",
   "AIConfirmWindow Title": "AI 內容免責聲明",
+  "AIDisclosureWindow Title": "AI 資訊揭露與預覽",
   "ModLinkRequest": "關閉該視窗後將會請求提升權限以安裝BepInEx模組",
   "ModUploadingProgress Title": "上傳進度",
   "ModUploadFinish": "上傳完成",
